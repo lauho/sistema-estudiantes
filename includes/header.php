@@ -9,7 +9,7 @@
         href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
     >
 
-    <title><?= $titulo ?? "Mi aplicación" ?></title>
+    <title><?= $titulo ?? "Sistema de estudiantes" ?></title>
 </head>
 
 <body>

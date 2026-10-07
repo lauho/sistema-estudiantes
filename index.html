@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Estudiantes — API</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+        />
+    </head>
+    <body>
+        <main class="container">
+            <h1>Estudiantes</h1>
+
+            <input
+                type="search"
+                id="busqueda"
+                placeholder="Buscar por nombre o apellido"
+            />
+
+            <p id="mensaje" hidden></p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body"></tbody>
+            </table>
+
+            <h2>Agregar estudiante</h2>
+
+            <form id="form-estudiante">
+                <fieldset>
+                    <label>
+                        Nombre
+                        <input type="text" name="nombre" id="nombre" required />
+                    </label>
+                    <label>
+                        Apellido
+                        <input
+                            type="text"
+                            name="apellido"
+                            id="apellido"
+                            required
+                        />
+                    </label>
+                    <label>
+                        Email
+                        <input type="email" name="email" id="email" required />
+                    </label>
+                    <button type="submit">Agregar estudiante</button>
+                </fieldset>
+            </form>
+        </main>
+
+        <dialog id="modal-editar">
+            <form method="dialog" id="form-editar">
+                <h2>Editar estudiante</h2>
+
+                <input type="hidden" id="editar-id" />
+
+                <fieldset>
+                    <label>
+                        Nombre
+                        <input type="text" id="editar-nombre" required />
+                    </label>
+                    <label>
+                        Apellido
+                        <input type="text" id="editar-apellido" required />
+                    </label>
+                    <label>
+                        Email
+                        <input type="email" id="editar-email" required />
+                    </label>
+                </fieldset>
+
+                <footer>
+                    <button type="submit" value="guardar">
+                        Guardar cambios
+                    </button>
+                    <button type="button" id="cerrar-modal" class="secondary">
+                        Cancelar
+                    </button>
+                </footer>
+            </form>
+        </dialog>
+
+        <script src="js/app.js"></script>
+    </body>
+</html>

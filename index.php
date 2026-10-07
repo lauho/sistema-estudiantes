@@ -21,7 +21,6 @@ require_once "includes/header.php";
 
 <h1>Estudiantes</h1>
 
-
 <form method="get">
     <input type="search" name="q" value="<?= htmlspecialchars(
         $busqueda,

@@ -31,6 +31,19 @@
                 line-height: 1.2;
             }
 
+            tr.stock-bajo td {
+                background-color: #fff3cd;
+            }
+
+            small.tag {
+                background: #8a6d00;
+                color: #fff;
+                padding: 0.1em 0.5em;
+                border-radius: 1em;
+                white-space: nowrap;
+                font-size: 0.7rem;
+            }
+
             #modal-editar {
                 min-width: 0;
                 width: 34rem;
@@ -86,7 +99,7 @@
 
             <h2>Agregar producto</h2>
 
-            <form id="form-producto">
+            <form id="form-producto" novalidate>
                 <fieldset>
                     <label>
                         Nombre
@@ -126,7 +139,7 @@
         </main>
 
         <dialog id="modal-editar">
-            <form method="dialog" id="form-editar">
+            <form method="dialog" id="form-editar" novalidate>
                 <h2>Editar producto</h2>
 
                 <input type="hidden" id="editar-id" />

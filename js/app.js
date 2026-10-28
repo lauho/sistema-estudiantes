@@ -1,9 +1,70 @@
+const UMBRAL_STOCK_BAJO = 5;
+const PRECIO_MAX = 99999999.99;
+
+const formatoPrecio = new Intl.NumberFormat("es-AR", {
+  style: "currency",
+  currency: "ARS",
+  minimumFractionDigits: 2,
+});
+
 let productosCargados = [];
 
 function escapar(texto) {
   const div = document.createElement("div");
   div.textContent = texto ?? "";
   return div.innerHTML;
+}
+
+function formatearPrecio(precio) {
+  return formatoPrecio.format(Number(precio) || 0);
+}
+
+function validarProducto(datos) {
+  const nombre = (datos.nombre ?? "").trim();
+  const precioTexto = String(datos.precio ?? "").trim();
+  const stockTexto = String(datos.stock ?? "").trim();
+
+  if (nombre === "") {
+    return { ok: false, mensaje: "El nombre es obligatorio.", datos: null };
+  }
+
+  if (precioTexto === "" || !Number.isFinite(Number(precioTexto))) {
+    return { ok: false, mensaje: "El precio debe ser un número.", datos: null };
+  }
+
+  const precio = Number(precioTexto);
+
+  if (precio < 0) {
+    return {
+      ok: false,
+      mensaje: "El precio no puede ser negativo.",
+      datos: null,
+    };
+  }
+
+  if (precio > PRECIO_MAX) {
+    return { ok: false, mensaje: "El precio es demasiado alto.", datos: null };
+  }
+
+  if (stockTexto === "" || !Number.isInteger(Number(stockTexto))) {
+    return {
+      ok: false,
+      mensaje: "El stock debe ser un número entero.",
+      datos: null,
+    };
+  }
+
+  const stock = Number(stockTexto);
+
+  if (stock < 0) {
+    return {
+      ok: false,
+      mensaje: "El stock no puede ser negativo.",
+      datos: null,
+    };
+  }
+
+  return { ok: true, mensaje: "", datos: { nombre, precio, stock } };
 }
 
 function mostrarMensaje(texto, esError = false) {
@@ -28,12 +89,17 @@ function renderizarProductos(productos) {
   }
 
   productos.forEach((producto) => {
+    const stockBajo = producto.stock <= UMBRAL_STOCK_BAJO;
     const tr = document.createElement("tr");
+
+    if (stockBajo) {
+      tr.classList.add("stock-bajo");
+    }
 
     tr.innerHTML = `
       <td>${escapar(producto.nombre)}</td>
-      <td>${escapar(producto.precio)}</td>
-      <td>${escapar(producto.stock)}</td>
+      <td>${escapar(formatearPrecio(producto.precio))}</td>
+      <td>${producto.stock}${stockBajo ? ' <small class="tag">Stock bajo</small>' : ""}</td>
       <td class="acciones-td">
         <div class="acciones">
           <button type="button" data-accion="editar" data-id="${producto.id}">Editar</button>
@@ -99,8 +165,9 @@ document.querySelector("#tabla-body").addEventListener("click", (e) => {
   }
 
   const id = Number(boton.dataset.id);
+  const accion = boton.dataset.accion;
 
-  if (boton.dataset.accion === "eliminar") {
+  if (accion === "eliminar") {
     eliminar(id);
     return;
   }
@@ -118,11 +185,20 @@ document.querySelector("#tabla-body").addEventListener("click", (e) => {
 document.querySelector("#form-editar").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const datos = {
-    id: Number(document.querySelector("#editar-id").value),
-    nombre: document.querySelector("#editar-nombre").value.trim(),
+  const validacion = validarProducto({
+    nombre: document.querySelector("#editar-nombre").value,
     precio: document.querySelector("#editar-precio").value,
     stock: document.querySelector("#editar-stock").value,
+  });
+
+  if (!validacion.ok) {
+    mostrarMensaje(validacion.mensaje, true);
+    return;
+  }
+
+  const datos = {
+    id: Number(document.querySelector("#editar-id").value),
+    ...validacion.datos,
   };
 
   const response = await fetch("api/productos.php", {
@@ -156,16 +232,21 @@ document
   .addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const datos = {
-      nombre: document.querySelector("#nombre").value.trim(),
+    const validacion = validarProducto({
+      nombre: document.querySelector("#nombre").value,
       precio: document.querySelector("#precio").value,
       stock: document.querySelector("#stock").value,
-    };
+    });
+
+    if (!validacion.ok) {
+      mostrarMensaje(validacion.mensaje, true);
+      return;
+    }
 
     const response = await fetch("api/productos.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(datos),
+      body: JSON.stringify(validacion.datos),
     });
 
     const resultado = await response.json();

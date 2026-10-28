@@ -45,14 +45,14 @@ Entrar a `http://localhost:8000/` (redirige a `index.html`).
 
 ## Estructura
 
-| Archivo                  | Qué hace                                            |
-| ------------------------ | --------------------------------------------------- |
-| `index.html`             | Tabla, buscador y formularios (la app)              |
-| `js/app.js`              | `fetch` a la API y armado del DOM                   |
-| `api/productos.php`      | API JSON: GET, POST, PUT y DELETE                   |
+| Archivo                | Qué hace                                              |
+| ---------------------- | ----------------------------------------------------- |
+| `index.html`           | Tabla, buscador y formularios (la app)                |
+| `js/app.js`            | `fetch` a la API y armado del DOM                     |
+| `api/productos.php`    | API JSON: GET, POST, PUT y DELETE                     |
 | `includes/productos.php` | Validación de precio y stock del lado del servidor  |
-| `config/database.php`    | Conexión a MySQL                                    |
-| `index.php`              | Redirige a `index.html`                             |
+| `config/database.php`  | Conexión a MySQL                                      |
+| `index.php`            | Redirige a `index.html`                               |
 
 ## Uso
 
@@ -61,14 +61,26 @@ Entrar a `http://localhost:8000/` (redirige a `index.html`).
 - **Editar** abre un modal con los datos cargados.
 - **Eliminar** borra el producto (pide confirmación).
 
+## Mejoras (Nivel 2)
+
+1. **Formato de precio en pesos**: se muestra con
+   `Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" })`,
+   por ejemplo `$ 1.850,00`.
+2. **Resaltar stock bajo**: si el stock es menor o igual a `UMBRAL_STOCK_BAJO`
+   (5), la fila se pinta y aparece la etiqueta **Stock bajo**.
+3. **Validación de precio y stock**: se valida en el navegador
+   (`validarProducto()` en `app.js`) y otra vez en el servidor
+   (`validar_producto()` en `includes/productos.php`). El precio no puede ser
+   negativo y el stock debe ser un entero mayor o igual a 0.
+
 ## API
 
-| Método   | Datos                         | Respuesta          |
-| -------- | ----------------------------- | ------------------ |
-| `GET`    | `?q=` (opcional)              | Lista de productos |
-| `POST`   | `{nombre, precio, stock}`     | `{ok, id}`         |
-| `PUT`    | `{id, nombre, precio, stock}` | `{ok, id}`         |
-| `DELETE` | `?id=`                        | `{ok, id}`         |
+| Método   | Datos                          | Respuesta              |
+| -------- | ------------------------------ | ---------------------- |
+| `GET`    | `?q=` (opcional)               | Lista de productos     |
+| `POST`   | `{nombre, precio, stock}`      | `{ok, id}`             |
+| `PUT`    | `{id, nombre, precio, stock}`  | `{ok, id}`             |
+| `DELETE` | `?id=`                         | `{ok, id}`             |
 
 Los errores de validación devuelven `400` con
 `{ok: false, mensaje: "..."}`.

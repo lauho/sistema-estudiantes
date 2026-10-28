@@ -99,7 +99,25 @@ function renderizarProductos(productos) {
     tr.innerHTML = `
       <td>${escapar(producto.nombre)}</td>
       <td>${escapar(formatearPrecio(producto.precio))}</td>
-      <td>${producto.stock}${stockBajo ? ' <small class="tag">Stock bajo</small>' : ""}</td>
+      <td>
+        <div class="acciones">
+          <button
+            type="button"
+            class="secondary"
+            data-accion="restar"
+            data-id="${producto.id}"
+            ${producto.stock === 0 ? "disabled" : ""}
+          >−1</button>
+          <span class="stock-numero">${producto.stock}</span>
+          ${stockBajo ? '<small class="tag">Stock bajo</small>' : ""}
+          <button
+            type="button"
+            class="secondary"
+            data-accion="sumar"
+            data-id="${producto.id}"
+          >+1</button>
+        </div>
+      </td>
       <td class="acciones-td">
         <div class="acciones">
           <button type="button" data-accion="editar" data-id="${producto.id}">Editar</button>
@@ -148,6 +166,23 @@ async function eliminar(id) {
   cargarProductos(busquedaActual());
 }
 
+async function cambiarStock(id, delta) {
+  const response = await fetch(
+    `api/productos.php?id=${id}&delta=${delta}`,
+    { method: "PATCH" },
+  );
+
+  const resultado = await response.json();
+
+  if (!resultado.ok) {
+    mostrarMensaje(resultado.mensaje, true);
+    return;
+  }
+
+  mostrarMensaje("Stock actualizado: " + resultado.stock + " unidades.");
+  cargarProductos(busquedaActual());
+}
+
 function abrirModal(producto) {
   document.querySelector("#editar-id").value = producto.id;
   document.querySelector("#editar-nombre").value = producto.nombre;
@@ -166,6 +201,16 @@ document.querySelector("#tabla-body").addEventListener("click", (e) => {
 
   const id = Number(boton.dataset.id);
   const accion = boton.dataset.accion;
+
+  if (accion === "sumar") {
+    cambiarStock(id, 1);
+    return;
+  }
+
+  if (accion === "restar") {
+    cambiarStock(id, -1);
+    return;
+  }
 
   if (accion === "eliminar") {
     eliminar(id);

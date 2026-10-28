@@ -96,6 +96,36 @@ if ($method === 'PUT') {
     exit;
 }
 
+// PATCH se usa para los botones +1 / -1 de stock.
+if ($method === 'PATCH') {
+    $id = (int) ($_GET['id'] ?? 0);
+    $delta = (int) ($_GET['delta'] ?? 0);
+
+    if ($id === 0 || ($delta !== 1 && $delta !== -1)) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'mensaje' => 'Falta el id o el delta es inválido.']);
+        exit;
+    }
+
+    $resultado = $conn->query("SELECT stock FROM productos WHERE id = $id");
+    $fila = $resultado->fetch_assoc();
+
+    if (!$fila) {
+        http_response_code(404);
+        echo json_encode(['ok' => false, 'mensaje' => 'No se encontró el producto.']);
+        exit;
+    }
+
+    $stock = max(0, (int) $fila['stock'] + $delta);
+
+    if ($conn->query("UPDATE productos SET stock = $stock WHERE id = $id")) {
+        echo json_encode(['ok' => true, 'id' => $id, 'stock' => $stock]);
+    } else {
+        echo json_encode(['ok' => false, 'mensaje' => 'Error al actualizar el stock.']);
+    }
+    exit;
+}
+
 if ($method === 'DELETE') {
     $id = (int) ($_GET['id'] ?? 0);
 

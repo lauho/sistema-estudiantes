@@ -49,7 +49,7 @@ Entrar a `http://localhost:8000/` (redirige a `index.html`).
 | ---------------------- | ----------------------------------------------------- |
 | `index.html`           | Tabla, buscador y formularios (la app)                |
 | `js/app.js`            | `fetch` a la API y armado del DOM                     |
-| `api/productos.php`    | API JSON: GET, POST, PUT y DELETE                     |
+| `api/productos.php`    | API JSON: GET, POST, PUT, PATCH y DELETE              |
 | `includes/productos.php` | Validación de precio y stock del lado del servidor  |
 | `config/database.php`  | Conexión a MySQL                                      |
 | `index.php`            | Redirige a `index.html`                               |
@@ -60,6 +60,7 @@ Entrar a `http://localhost:8000/` (redirige a `index.html`).
 - El formulario de abajo agrega un producto.
 - **Editar** abre un modal con los datos cargados.
 - **Eliminar** borra el producto (pide confirmación).
+- Los botones **−1 / +1** cambian el stock de a una unidad.
 
 ## Mejoras (Nivel 2)
 
@@ -73,6 +74,12 @@ Entrar a `http://localhost:8000/` (redirige a `index.html`).
    (`validar_producto()` en `includes/productos.php`). El precio no puede ser
    negativo y el stock debe ser un entero mayor o igual a 0.
 
+## Desafío (Nivel 3)
+
+**Botones +1 / −1 de stock con PATCH.** Cada botón manda
+`PATCH api/productos.php?id=5&delta=1` (o `-1`). La API lee el stock actual, le
+suma el delta, nunca deja el stock en negativo y devuelve el stock nuevo.
+
 ## API
 
 | Método   | Datos                          | Respuesta              |
@@ -80,11 +87,12 @@ Entrar a `http://localhost:8000/` (redirige a `index.html`).
 | `GET`    | `?q=` (opcional)               | Lista de productos     |
 | `POST`   | `{nombre, precio, stock}`      | `{ok, id}`             |
 | `PUT`    | `{id, nombre, precio, stock}`  | `{ok, id}`             |
+| `PATCH`  | `?id=&delta=1` o `delta=-1`    | `{ok, id, stock}`      |
 | `DELETE` | `?id=`                         | `{ok, id}`             |
 
 Los errores de validación devuelven `400` con
 `{ok: false, mensaje: "..."}`.
 
 La API decide qué operación ejecutar mirando `$_SERVER['REQUEST_METHOD']`: un
-`if` por método (`GET`, `POST`, `PUT` y `DELETE`), y si no coincide ninguno
-responde `405`.
+`if` por método (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`), y si no coincide
+ninguno responde `405`.

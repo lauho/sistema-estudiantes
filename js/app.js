@@ -109,13 +109,13 @@ function renderizarProductos(productos) {
             ${producto.stock === 0 ? "disabled" : ""}
           >−1</button>
           <span class="stock-numero">${producto.stock}</span>
-          ${stockBajo ? '<small class="tag">Stock bajo</small>' : ""}
           <button
             type="button"
             class="secondary"
             data-accion="sumar"
             data-id="${producto.id}"
           >+1</button>
+          ${stockBajo ? '<small class="tag">Stock bajo</small>' : ""}
         </div>
       </td>
       <td class="acciones-td">

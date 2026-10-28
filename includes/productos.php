@@ -2,11 +2,6 @@
 const PRODUCTO_PRECIO_MAX = 99999999.99;
 const PRODUCTO_STOCK_MAX = 1000000;
 
-/**
- * Valida y normaliza los datos de un producto.
- * La usan tanto la API como el formulario, así el servidor
- * nunca confía en lo que manda el navegador.
- */
 function validar_producto(array $datos): array
 {
     $nombre = trim((string) ($datos["nombre"] ?? ""));

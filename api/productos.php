@@ -96,7 +96,6 @@ if ($method === 'PUT') {
     exit;
 }
 
-// PATCH se usa para los botones +1 / -1 de stock.
 if ($method === 'PATCH') {
     $id = (int) ($_GET['id'] ?? 0);
     $delta = (int) ($_GET['delta'] ?? 0);

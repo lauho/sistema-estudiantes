@@ -3,47 +3,14 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Sistema de Estudiantes</title>
+        <title>Sistema de Productos</title>
         <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
         />
-    <style>
-            #mensaje.error,
-            small.error {
+        <style>
+            #mensaje.error {
                 color: var(--pico-color-red, #b91c1c);
-            }
-
-            th.ordenable {
-                cursor: pointer;
-                user-select: none;
-            }
-
-            th.ordenable:hover {
-                background: var(--pico-muted-border-color, #eee);
-            }
-
-            th.ordenable::after {
-                content: " ⇅";
-                opacity: 0.3;
-            }
-
-            th.ordenable[data-dir="asc"]::after {
-                content: " ▲";
-                opacity: 1;
-            }
-
-            th.ordenable[data-dir="desc"]::after {
-                content: " ▼";
-                opacity: 1;
-            }
-
-            small.tag {
-                background: var(--pico-muted-border-color, #ddd);
-                color: var(--pico-color, #333);
-                padding: 0.1em 0.5em;
-                border-radius: 1em;
-                white-space: nowrap;
             }
 
             .acciones {
@@ -56,9 +23,17 @@
                 vertical-align: middle;
             }
 
+            .acciones button {
+                --pico-form-element-spacing-vertical: 0.2rem;
+                --pico-form-element-spacing-horizontal: 0.5rem;
+                margin-bottom: 0;
+                font-size: 0.75rem;
+                line-height: 1.2;
+            }
+
             #modal-editar {
                 min-width: 0;
-                width: 40rem;
+                width: 34rem;
                 max-width: calc(100% - 2rem);
                 overflow-y: auto;
             }
@@ -81,144 +56,108 @@
                 padding: 0.3rem 0.5rem;
                 margin-bottom: 0;
             }
-
-            #tabla-body td:first-child {
-                white-space: nowrap;
-            }
-
-            .acciones button {
-                --pico-form-element-spacing-vertical: 0.2rem;
-                --pico-form-element-spacing-horizontal: 0.5rem;
-                margin-bottom: 0;
-                font-size: 0.75rem;
-                line-height: 1.2;
-            }
         </style>
     </head>
     <body>
         <main class="container">
-            <h1>Estudiantes</h1>
+            <h1>Productos</h1>
 
-            <div class="grid">
-                <input
-                    type="search"
-                    id="busqueda"
-                    placeholder="Buscar por nombre o apellido"
-                />
-
-                <select id="filtro-estado">
-                    <option value="">Todos los estados</option>
-                    <option value="Aprobado">Aprobado</option>
-                    <option value="Desaprobado">Desaprobado</option>
-                </select>
-
-                <select id="filtro-activo">
-                    <option value="1">Solo activos</option>
-                    <option value="0">Solo inactivos</option>
-                    <option value="">Activos e inactivos</option>
-                </select>
-            </div>
+            <input
+                type="search"
+                id="busqueda"
+                placeholder="Buscar producto por nombre"
+            />
 
             <p id="mensaje" hidden></p>
 
             <table class="striped">
                 <thead>
                     <tr>
-                        <th scope="col" class="ordenable" data-orden="nombre" tabindex="0">
-                            Nombre
-                        </th>
-                        <th scope="col" class="ordenable" data-orden="apellido" tabindex="0">
-                            Apellido
-                        </th>
-                        <th scope="col" class="ordenable" data-orden="email" tabindex="0">
-                            Email
-                        </th>
-                        <th scope="col" class="ordenable" data-orden="promedio" tabindex="0">
-                            Notas
-                        </th>
-                        <th scope="col">Promedio</th>
+                        <th scope="col">Producto</th>
+                        <th scope="col">Precio</th>
+                        <th scope="col">Stock</th>
                         <th scope="col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-body"></tbody>
             </table>
 
-            <h2>Agregar estudiante</h2>
+            <p id="total"></p>
 
-            <form id="form-estudiante">
+            <h2>Agregar producto</h2>
+
+            <form id="form-producto">
                 <fieldset>
                     <label>
                         Nombre
                         <input type="text" name="nombre" id="nombre" required />
                     </label>
+                </fieldset>
+
+                <div class="grid">
                     <label>
-                        Apellido
+                        Precio
                         <input
-                            type="text"
-                            name="apellido"
-                            id="apellido"
+                            type="number"
+                            name="precio"
+                            id="precio"
+                            step="0.01"
+                            min="0"
+                            placeholder="0.00"
                             required
                         />
                     </label>
                     <label>
-                        Email
-                        <input type="email" name="email" id="email" required />
-                    </label>
-                </fieldset>
-
-                <fieldset>
-                    <legend>Notas</legend>
-                    <label>
-                        4 notas separadas por coma (1 a 10). Decimales con punto.
+                        Stock
                         <input
-                            type="text"
-                            id="notas"
-                            placeholder="8.5,7,9,10"
-                            autocomplete="off"
+                            type="number"
+                            name="stock"
+                            id="stock"
+                            step="1"
+                            min="0"
+                            placeholder="0"
                             required
                         />
-                        <small id="notas-preview"></small>
                     </label>
-                </fieldset>
+                </div>
 
-                <button type="submit">Agregar estudiante</button>
+                <button type="submit">Agregar producto</button>
             </form>
         </main>
 
         <dialog id="modal-editar">
             <form method="dialog" id="form-editar">
-                <h2>Editar estudiante</h2>
+                <h2>Editar producto</h2>
 
                 <input type="hidden" id="editar-id" />
 
-                <fieldset>
-                    <label>
-                        Nombre
-                        <input type="text" id="editar-nombre" required />
-                    </label>
-                    <label>
-                        Apellido
-                        <input type="text" id="editar-apellido" required />
-                    </label>
-                    <label>
-                        Email
-                        <input type="email" id="editar-email" required />
-                    </label>
-                </fieldset>
+                <label>
+                    Nombre
+                    <input type="text" id="editar-nombre" required />
+                </label>
 
-                <fieldset>
-                    <legend>Notas</legend>
+                <div class="grid">
                     <label>
-                        4 notas separadas por coma (1 a 10). Decimales con punto.
+                        Precio
                         <input
-                            type="text"
-                            id="editar-notas"
-                            autocomplete="off"
+                            type="number"
+                            id="editar-precio"
+                            step="0.01"
+                            min="0"
                             required
                         />
-                        <small id="editar-notas-preview"></small>
                     </label>
-                </fieldset>
+                    <label>
+                        Stock
+                        <input
+                            type="number"
+                            id="editar-stock"
+                            step="1"
+                            min="0"
+                            required
+                        />
+                    </label>
+                </div>
 
                 <footer>
                     <div class="acciones">

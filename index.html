@@ -77,7 +77,7 @@
 
         #modal-venta {
             min-width: 0;
-            width: 30rem;
+            width: 36rem;
             max-width: calc(100% - 2rem);
             overflow-y: auto;
         }
@@ -95,6 +95,37 @@
 
         #venta-total {
             font-weight: bold;
+        }
+
+        .venta-linea {
+            display: grid;
+            grid-template-columns: 1fr 4.5rem 6.5rem auto;
+            gap: 0.35rem;
+            align-items: center;
+            margin-bottom: 0.35rem;
+        }
+
+        .venta-linea select,
+        .venta-linea input {
+            margin-bottom: 0;
+        }
+
+        .venta-linea .subtotal {
+            text-align: right;
+            font-size: 0.85rem;
+        }
+
+        .venta-linea button {
+            margin-bottom: 0;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+
+        #agregar-linea {
+            margin-bottom: 0.75rem;
+            padding: 0.3rem 0.75rem;
+            font-size: 0.85rem;
         }
 
         .barra {
@@ -165,11 +196,9 @@
         <table class="striped">
             <thead>
                 <tr>
-                    <th scope="col">Producto</th>
-                    <th scope="col">Cantidad</th>
-                    <th scope="col">Precio</th>
-                    <th scope="col">Total</th>
                     <th scope="col">Fecha</th>
+                    <th scope="col">Productos</th>
+                    <th scope="col">Total</th>
                 </tr>
             </thead>
             <tbody id="ventas-body"></tbody>
@@ -217,15 +246,11 @@
         <form method="dialog" id="form-venta" novalidate>
             <h2>Registrar venta</h2>
 
-            <label>
-                Producto
-                <select id="venta-producto" required></select>
-            </label>
+            <div id="venta-lineas"></div>
 
-            <label>
-                Cantidad
-                <input type="number" id="venta-cantidad" min="1" step="1" value="1" required />
-            </label>
+            <button type="button" id="agregar-linea" class="secondary">
+                + Agregar producto
+            </button>
 
             <p id="venta-total"></p>
             <p id="venta-mensaje" hidden></p>

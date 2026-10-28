@@ -27,12 +27,19 @@ CREATE TABLE productos (
 
 CREATE TABLE ventas (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    total DECIMAL(10,2) NOT NULL,
+    fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE venta_detalle (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    venta_id INT NOT NULL,
     producto_id INT NOT NULL,
     producto_nombre VARCHAR(100) NOT NULL,
     cantidad INT NOT NULL,
     precio_unitario DECIMAL(10,2) NOT NULL,
-    total DECIMAL(10,2) NOT NULL,
-    fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    subtotal DECIMAL(10,2) NOT NULL,
+    KEY venta_id (venta_id)
 );
 ```
 
@@ -73,9 +80,9 @@ Entrar a `http://localhost:8000/` (redirige a `index.html`).
 - **Editar** abre un modal con los datos cargados.
 - **Eliminar** borra el producto (pide confirmación).
 - Los botones **−1 / +1** cambian el stock de a una unidad.
-- **Registrar venta** abre un modal: se elige el producto, la cantidad y se ve
-  el total. Al confirmar se descuenta el stock y la venta aparece en la tabla de
-  abajo, sin recargar la página.
+- **Registrar venta** abre un modal donde se agregan uno o varios productos con
+  su cantidad y se ve el total. Al confirmar se descuenta el stock y la venta
+  aparece en la tabla de abajo con su lista de productos, sin recargar la página.
 
 ## Mejoras (Nivel 2)
 
@@ -109,14 +116,16 @@ suma el delta, nunca deja el stock en negativo y devuelve el stock nuevo.
 
 ### Ventas
 
-| Método | Datos                        | Respuesta                        |
-| ------ | ---------------------------- | -------------------------------- |
-| `GET`  | —                            | Lista de ventas                  |
-| `POST` | `{producto_id, cantidad}`    | `{ok, id, total, stock}`         |
+| Método | Datos                                  | Respuesta                |
+| ------ | -------------------------------------- | ------------------------ |
+| `GET`  | —                                      | Ventas con su detalle    |
+| `POST` | `{items: [{producto_id, cantidad}]}`   | `{ok, id, total}`        |
 
-El `POST` valida el stock, descuenta la cantidad y guarda la venta con el
-nombre y el precio del momento (si después cambia el producto, la venta no se
-altera).
+El `POST` valida el stock de todos los productos, descuenta las cantidades y
+guarda la venta en `ventas` y sus líneas en `venta_detalle`. Si algún producto
+no tiene stock, no se guarda nada (se usa una transacción). Cada línea guarda el
+nombre y el precio del momento: si después cambia el producto, la venta no se
+altera.
 
 Los errores de validación devuelven `400` con
 `{ok: false, mensaje: "..."}`.

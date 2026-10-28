@@ -8,26 +8,136 @@
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
         />
+    <style>
+            #mensaje.error,
+            small.error {
+                color: var(--pico-color-red, #b91c1c);
+            }
+
+            th.ordenable {
+                cursor: pointer;
+                user-select: none;
+            }
+
+            th.ordenable:hover {
+                background: var(--pico-muted-border-color, #eee);
+            }
+
+            th.ordenable::after {
+                content: " ⇅";
+                opacity: 0.3;
+            }
+
+            th.ordenable[data-dir="asc"]::after {
+                content: " ▲";
+                opacity: 1;
+            }
+
+            th.ordenable[data-dir="desc"]::after {
+                content: " ▼";
+                opacity: 1;
+            }
+
+            small.tag {
+                background: var(--pico-muted-border-color, #ddd);
+                color: var(--pico-color, #333);
+                padding: 0.1em 0.5em;
+                border-radius: 1em;
+                white-space: nowrap;
+            }
+
+            .acciones {
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+            td.acciones-td {
+                vertical-align: middle;
+            }
+
+            #modal-editar {
+                min-width: 0;
+                width: 40rem;
+                max-width: calc(100% - 2rem);
+                overflow-y: auto;
+            }
+
+            #modal-editar form > label,
+            #modal-editar fieldset {
+                margin-bottom: 0.5rem;
+            }
+
+            #modal-editar fieldset {
+                padding: 0.4rem 0.75rem;
+            }
+
+            #modal-editar h2 {
+                font-size: 1.15rem;
+                margin-bottom: 0.5rem;
+            }
+
+            #modal-editar input {
+                padding: 0.3rem 0.5rem;
+                margin-bottom: 0;
+            }
+
+            #tabla-body td:first-child {
+                white-space: nowrap;
+            }
+
+            .acciones button {
+                --pico-form-element-spacing-vertical: 0.2rem;
+                --pico-form-element-spacing-horizontal: 0.5rem;
+                margin-bottom: 0;
+                font-size: 0.75rem;
+                line-height: 1.2;
+            }
+        </style>
     </head>
     <body>
         <main class="container">
             <h1>Estudiantes</h1>
 
-            <input
-                type="search"
-                id="busqueda"
-                placeholder="Buscar por nombre o apellido"
-            />
+            <div class="grid">
+                <input
+                    type="search"
+                    id="busqueda"
+                    placeholder="Buscar por nombre o apellido"
+                />
+
+                <select id="filtro-estado">
+                    <option value="">Todos los estados</option>
+                    <option value="Aprobado">Aprobado</option>
+                    <option value="Desaprobado">Desaprobado</option>
+                </select>
+
+                <select id="filtro-activo">
+                    <option value="1">Solo activos</option>
+                    <option value="0">Solo inactivos</option>
+                    <option value="">Activos e inactivos</option>
+                </select>
+            </div>
 
             <p id="mensaje" hidden></p>
 
-            <table>
+            <table class="striped">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Email</th>
-                        <th>Acciones</th>
+                        <th scope="col" class="ordenable" data-orden="nombre" tabindex="0">
+                            Nombre
+                        </th>
+                        <th scope="col" class="ordenable" data-orden="apellido" tabindex="0">
+                            Apellido
+                        </th>
+                        <th scope="col" class="ordenable" data-orden="email" tabindex="0">
+                            Email
+                        </th>
+                        <th scope="col" class="ordenable" data-orden="promedio" tabindex="0">
+                            Notas
+                        </th>
+                        <th scope="col">Promedio</th>
+                        <th scope="col">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-body"></tbody>
@@ -54,8 +164,24 @@
                         Email
                         <input type="email" name="email" id="email" required />
                     </label>
-                    <button type="submit">Agregar estudiante</button>
                 </fieldset>
+
+                <fieldset>
+                    <legend>Notas</legend>
+                    <label>
+                        4 notas separadas por coma (1 a 10). Decimales con punto.
+                        <input
+                            type="text"
+                            id="notas"
+                            placeholder="8.5,7,9,10"
+                            autocomplete="off"
+                            required
+                        />
+                        <small id="notas-preview"></small>
+                    </label>
+                </fieldset>
+
+                <button type="submit">Agregar estudiante</button>
             </form>
         </main>
 
@@ -80,13 +206,29 @@
                     </label>
                 </fieldset>
 
+                <fieldset>
+                    <legend>Notas</legend>
+                    <label>
+                        4 notas separadas por coma (1 a 10). Decimales con punto.
+                        <input
+                            type="text"
+                            id="editar-notas"
+                            autocomplete="off"
+                            required
+                        />
+                        <small id="editar-notas-preview"></small>
+                    </label>
+                </fieldset>
+
                 <footer>
-                    <button type="submit" value="guardar">
-                        Guardar cambios
-                    </button>
-                    <button type="button" id="cerrar-modal" class="secondary">
-                        Cancelar
-                    </button>
+                    <div class="acciones">
+                        <button type="submit" value="guardar">
+                            Guardar cambios
+                        </button>
+                        <button type="button" id="cerrar-modal" class="secondary">
+                            Cancelar
+                        </button>
+                    </div>
                 </footer>
             </form>
         </dialog>

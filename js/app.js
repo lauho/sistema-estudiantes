@@ -1,5 +1,6 @@
 const UMBRAL_STOCK_BAJO = 5;
 const PRECIO_MAX = 99999999.99;
+const ESPERA_BUSQUEDA = 300;
 
 const formatoPrecio = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -268,8 +269,15 @@ document.querySelector("#cerrar-modal").addEventListener("click", () => {
   document.querySelector("#modal-editar").close();
 });
 
+let temporizadorBusqueda;
+
 document.querySelector("#busqueda").addEventListener("input", (e) => {
-  cargarProductos(e.target.value);
+  const texto = e.target.value;
+
+  clearTimeout(temporizadorBusqueda);
+  temporizadorBusqueda = setTimeout(() => {
+    cargarProductos(texto);
+  }, ESPERA_BUSQUEDA);
 });
 
 document

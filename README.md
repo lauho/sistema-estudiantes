@@ -56,7 +56,8 @@ Entrar a `http://localhost:8000/` (redirige a `index.html`).
 
 ## Uso
 
-- El buscador filtra por nombre mientras se escribe.
+- El buscador filtra por nombre mientras se escribe, con un debounce de 300 ms
+  (espera a que dejes de tipear antes de consultar la API).
 - El formulario de abajo agrega un producto.
 - **Editar** abre un modal con los datos cargados.
 - **Eliminar** borra el producto (pide confirmación).

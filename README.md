@@ -24,6 +24,16 @@ CREATE TABLE productos (
     precio DECIMAL(10,2) NOT NULL,
     stock INT NOT NULL DEFAULT 0
 );
+
+CREATE TABLE ventas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT NOT NULL,
+    producto_nombre VARCHAR(100) NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10,2) NOT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
 3. Configurar las credenciales en `config/database.php`:
@@ -50,6 +60,7 @@ Entrar a `http://localhost:8000/` (redirige a `index.html`).
 | `index.html`           | Tabla, buscador y formularios (la app)                |
 | `js/app.js`            | `fetch` a la API y armado del DOM                     |
 | `api/productos.php`    | API JSON: GET, POST, PUT, PATCH y DELETE              |
+| `api/ventas.php`       | API JSON: GET y POST de ventas                        |
 | `includes/productos.php` | Validación de precio y stock del lado del servidor  |
 | `config/database.php`  | Conexión a MySQL                                      |
 | `index.php`            | Redirige a `index.html`                               |
@@ -62,6 +73,9 @@ Entrar a `http://localhost:8000/` (redirige a `index.html`).
 - **Editar** abre un modal con los datos cargados.
 - **Eliminar** borra el producto (pide confirmación).
 - Los botones **−1 / +1** cambian el stock de a una unidad.
+- **Registrar venta** abre un modal: se elige el producto, la cantidad y se ve
+  el total. Al confirmar se descuenta el stock y la venta aparece en la tabla de
+  abajo, sin recargar la página.
 
 ## Mejoras (Nivel 2)
 
@@ -83,6 +97,8 @@ suma el delta, nunca deja el stock en negativo y devuelve el stock nuevo.
 
 ## API
 
+### Productos
+
 | Método   | Datos                          | Respuesta              |
 | -------- | ------------------------------ | ---------------------- |
 | `GET`    | `?q=` (opcional)               | Lista de productos     |
@@ -90,6 +106,17 @@ suma el delta, nunca deja el stock en negativo y devuelve el stock nuevo.
 | `PUT`    | `{id, nombre, precio, stock}`  | `{ok, id}`             |
 | `PATCH`  | `?id=&delta=1` o `delta=-1`    | `{ok, id, stock}`      |
 | `DELETE` | `?id=`                         | `{ok, id}`             |
+
+### Ventas
+
+| Método | Datos                        | Respuesta                        |
+| ------ | ---------------------------- | -------------------------------- |
+| `GET`  | —                            | Lista de ventas                  |
+| `POST` | `{producto_id, cantidad}`    | `{ok, id, total, stock}`         |
+
+El `POST` valida el stock, descuenta la cantidad y guarda la venta con el
+nombre y el precio del momento (si después cambia el producto, la venta no se
+altera).
 
 Los errores de validación devuelven `400` con
 `{ok: false, mensaje: "..."}`.

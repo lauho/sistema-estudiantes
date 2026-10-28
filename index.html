@@ -1,196 +1,245 @@
 <!doctype html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Sistema de Productos</title>
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
-        />
-        <style>
-            #mensaje.error {
-                color: var(--pico-color-red, #b91c1c);
-            }
 
-            .acciones {
-                display: flex;
-                align-items: center;
-                gap: 0.25rem;
-            }
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Productos</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <style>
+        #mensaje.error,
+        #venta-mensaje.error {
+            color: var(--pico-color-red, #b91c1c);
+        }
 
-            td.acciones-td {
-                vertical-align: middle;
-            }
+        .acciones {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
 
-            .acciones button {
-                --pico-form-element-spacing-vertical: 0.2rem;
-                --pico-form-element-spacing-horizontal: 0.5rem;
-                margin-bottom: 0;
-                font-size: 0.75rem;
-                line-height: 1.2;
-            }
+        td.acciones-td {
+            vertical-align: middle;
+        }
 
-            .stock-numero {
-                min-width: 2rem;
-                text-align: center;
-                font-weight: bold;
-            }
+        .acciones button {
+            --pico-form-element-spacing-vertical: 0.2rem;
+            --pico-form-element-spacing-horizontal: 0.5rem;
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            line-height: 1.2;
+        }
 
-            table.striped tbody tr.stock-bajo td {
-                background-color: rgba(255, 193, 7, 0.15);
-            }
+        .stock-numero {
+            min-width: 2rem;
+            text-align: center;
+            font-weight: bold;
+        }
 
-            small.tag {
-                background: #8a6d00;
-                color: #fff;
-                padding: 0.1em 0.5em;
-                border-radius: 1em;
-                white-space: nowrap;
-                font-size: 0.7rem;
-            }
+        table.striped tbody tr.stock-bajo td {
+            background-color: rgba(255, 193, 7, 0.15);
+        }
 
-            #modal-editar {
-                min-width: 0;
-                width: 34rem;
-                max-width: calc(100% - 2rem);
-                overflow-y: auto;
-            }
+        small.tag {
+            background: #8a6d00;
+            color: #fff;
+            padding: 0.1em 0.5em;
+            border-radius: 1em;
+            white-space: nowrap;
+            font-size: 0.7rem;
+        }
 
-            #modal-editar form > label,
-            #modal-editar fieldset {
-                margin-bottom: 0.5rem;
-            }
+        #modal-editar {
+            min-width: 0;
+            width: 34rem;
+            max-width: calc(100% - 2rem);
+            overflow-y: auto;
+        }
 
-            #modal-editar fieldset {
-                padding: 0.4rem 0.75rem;
-            }
+        #modal-editar form>label,
+        #modal-editar fieldset {
+            margin-bottom: 0.5rem;
+        }
 
-            #modal-editar h2 {
-                font-size: 1.15rem;
-                margin-bottom: 0.5rem;
-            }
+        #modal-editar fieldset {
+            padding: 0.4rem 0.75rem;
+        }
 
-            #modal-editar input {
-                padding: 0.3rem 0.5rem;
-                margin-bottom: 0;
-            }
-        </style>
-    </head>
-    <body>
-        <main class="container">
+        #modal-editar h2 {
+            font-size: 1.15rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #modal-editar input {
+            padding: 0.3rem 0.5rem;
+            margin-bottom: 0;
+        }
+
+        #modal-venta {
+            min-width: 0;
+            width: 30rem;
+            max-width: calc(100% - 2rem);
+            overflow-y: auto;
+        }
+
+        #modal-venta h2 {
+            font-size: 1.15rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #modal-venta input,
+        #modal-venta select {
+            padding: 0.3rem 0.5rem;
+            margin-bottom: 0;
+        }
+
+        #venta-total {
+            font-weight: bold;
+        }
+
+        .barra {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .barra h1 {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <div class="barra">
             <h1>Productos</h1>
+            <button type="button" id="abrir-venta">Registrar venta</button>
+        </div>
 
-            <input
-                type="search"
-                id="busqueda"
-                placeholder="Buscar producto por nombre"
-            />
+        <input type="search" id="busqueda" placeholder="Buscar producto por nombre" />
 
-            <p id="mensaje" hidden></p>
+        <p id="mensaje" hidden></p>
 
-            <table class="striped">
-                <thead>
-                    <tr>
-                        <th scope="col">Producto</th>
-                        <th scope="col">Precio</th>
-                        <th scope="col">Stock</th>
-                        <th scope="col">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-body"></tbody>
-            </table>
+        <table class="striped">
+            <thead>
+                <tr>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-body"></tbody>
+        </table>
 
-            <p id="total"></p>
+        <p id="total"></p>
 
-            <h2>Agregar producto</h2>
+        <h2>Agregar producto</h2>
 
-            <form id="form-producto" novalidate>
-                <fieldset>
-                    <label>
-                        Nombre
-                        <input type="text" name="nombre" id="nombre" required />
-                    </label>
-                </fieldset>
-
-                <div class="grid">
-                    <label>
-                        Precio
-                        <input
-                            type="number"
-                            name="precio"
-                            id="precio"
-                            step="0.01"
-                            min="0"
-                            placeholder="0.00"
-                            required
-                        />
-                    </label>
-                    <label>
-                        Stock
-                        <input
-                            type="number"
-                            name="stock"
-                            id="stock"
-                            step="1"
-                            min="0"
-                            placeholder="0"
-                            required
-                        />
-                    </label>
-                </div>
-
-                <button type="submit">Agregar producto</button>
-            </form>
-        </main>
-
-        <dialog id="modal-editar">
-            <form method="dialog" id="form-editar" novalidate>
-                <h2>Editar producto</h2>
-
-                <input type="hidden" id="editar-id" />
-
+        <form id="form-producto" novalidate>
+            <fieldset>
                 <label>
                     Nombre
-                    <input type="text" id="editar-nombre" required />
+                    <input type="text" name="nombre" id="nombre" required />
                 </label>
+            </fieldset>
 
-                <div class="grid">
-                    <label>
-                        Precio
-                        <input
-                            type="number"
-                            id="editar-precio"
-                            step="0.01"
-                            min="0"
-                            required
-                        />
-                    </label>
-                    <label>
-                        Stock
-                        <input
-                            type="number"
-                            id="editar-stock"
-                            step="1"
-                            min="0"
-                            required
-                        />
-                    </label>
+            <div class="grid">
+                <label>
+                    Precio
+                    <input type="number" name="precio" id="precio" step="0.01" min="0" placeholder="0.00" required />
+                </label>
+                <label>
+                    Stock
+                    <input type="number" name="stock" id="stock" step="1" min="0" placeholder="0" required />
+                </label>
+            </div>
+
+            <button type="submit">Agregar producto</button>
+        </form>
+
+        <h2>Ventas</h2>
+
+        <table class="striped">
+            <thead>
+                <tr>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Fecha</th>
+                </tr>
+            </thead>
+            <tbody id="ventas-body"></tbody>
+        </table>
+
+        <p id="total-ventas"></p>
+    </main>
+
+    <dialog id="modal-editar">
+        <form method="dialog" id="form-editar" novalidate>
+            <h2>Editar producto</h2>
+
+            <input type="hidden" id="editar-id" />
+
+            <label>
+                Nombre
+                <input type="text" id="editar-nombre" required />
+            </label>
+
+            <div class="grid">
+                <label>
+                    Precio
+                    <input type="number" id="editar-precio" step="0.01" min="0" required />
+                </label>
+                <label>
+                    Stock
+                    <input type="number" id="editar-stock" step="1" min="0" required />
+                </label>
+            </div>
+
+            <footer>
+                <div class="acciones">
+                    <button type="submit" value="guardar">
+                        Guardar cambios
+                    </button>
+                    <button type="button" id="cerrar-modal" class="secondary">
+                        Cancelar
+                    </button>
                 </div>
+            </footer>
+        </form>
+    </dialog>
 
-                <footer>
-                    <div class="acciones">
-                        <button type="submit" value="guardar">
-                            Guardar cambios
-                        </button>
-                        <button type="button" id="cerrar-modal" class="secondary">
-                            Cancelar
-                        </button>
-                    </div>
-                </footer>
-            </form>
-        </dialog>
+    <dialog id="modal-venta">
+        <form method="dialog" id="form-venta" novalidate>
+            <h2>Registrar venta</h2>
 
-        <script src="js/app.js"></script>
-    </body>
+            <label>
+                Producto
+                <select id="venta-producto" required></select>
+            </label>
+
+            <label>
+                Cantidad
+                <input type="number" id="venta-cantidad" min="1" step="1" value="1" required />
+            </label>
+
+            <p id="venta-total"></p>
+            <p id="venta-mensaje" hidden></p>
+
+            <footer>
+                <div class="acciones">
+                    <button type="submit" id="btn-registrar-venta">Registrar venta</button>
+                    <button type="button" id="cerrar-venta" class="secondary">Cancelar</button>
+                </div>
+            </footer>
+        </form>
+    </dialog>
+
+    <script src="js/app.js"></script>
+</body>
+
 </html>
